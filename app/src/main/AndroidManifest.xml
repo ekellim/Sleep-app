@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MeasureActivity"
-            android:label = "Second Activity"
+            android:label = "Track sleep"
             android:parentActivityName=".MainActivity"
             tools:ignore="Instantiatable">
             <meta-data
