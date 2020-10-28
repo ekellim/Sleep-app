@@ -39,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
         title.setText("Set your alarm clock");
         timePicker = findViewById(R.id.timePicker);
 
-        values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
-
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //db = new MyDBHandler();
@@ -61,10 +59,11 @@ public class MainActivity extends AppCompatActivity {
                     activity = new Activity(-1, "error", "error");
                 }
                 MyDBHandler dbHandler = new MyDBHandler(MainActivity.this);
-                dbHandler.addHandler(activity);
+                dbHandler.addActivityHandler(activity);
 
                 //Toast.makeText(MainActivity.this, "success: " + success, Toast.LENGTH_SHORT).show();
 
+                values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
                 String message = values;
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
@@ -85,8 +84,9 @@ public class MainActivity extends AppCompatActivity {
             activity = new Activity(-1, "error", "error");
         }
         MyDBHandler dbHandler = new MyDBHandler(MainActivity.this);
-        dbHandler.addHandler(activity);
+        dbHandler.addActivityHandler(activity);
 
+        values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
         String message = values;
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
