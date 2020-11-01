@@ -10,12 +10,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static java.lang.Integer.parseInt;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
@@ -37,8 +40,10 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
         LocalDateTime now = LocalDateTime.now();
+
         //Er moet nog gezorgd worden dat de ActivityID wordt meegegeven naar deze klasse zodat deze hier kan meegegeven worden masurement is toch autoincrement.
-        measurement = new Measurement(-1, -1, dtf.format(now));
+        int activityId = parseInt(intent.getStringExtra(MainActivity.ACTIVITY_ID));
+        measurement = new Measurement(-1, activityId, dtf.format(now));
 
         String clock = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         alarm = findViewById(R.id.alarm);
@@ -58,12 +63,9 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
                 MyDBHandler dbHandler = new MyDBHandler(MeasureActivity.this);
                 dbHandler.addMeasurementHandler(measurement);
 
-                //String message = "Measurement time: "+measurement.getTimestamp()+" Value: " +measurement.getValue();
-                //Toast.makeText(MeasureActivity.this, message, Toast.LENGTH_SHORT).show();
-
                 DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
                 LocalDateTime now = LocalDateTime.now();
-                measurement = new Measurement(-1, -1, dtf.format(now));
+                measurement = new Measurement(-1, activityId, dtf.format(now));
             }
         };
         Timer timer = new Timer();
@@ -71,6 +73,10 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         long intervalPeriod = 1*60*1000;
         // schedules the task to be run in an interval
         timer.scheduleAtFixedRate(task, delay, intervalPeriod);
+    }
+
+    public void stopMeasurement(View v){
+        finish();
     }
 
     @Override

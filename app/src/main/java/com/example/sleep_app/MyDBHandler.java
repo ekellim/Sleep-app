@@ -84,7 +84,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
     public int GetLastActivityId(){
         SQLiteDatabase db = this.getReadableDatabase();
         int id = -1;
-        String qry = "SELECT id FROM " + TABLE1 + " WHERE id = ( SELECT MAX(" + ACTIVITY_ID +") FROM " + TABLE1 + ");";
+        //String qry = "SELECT id FROM " + TABLE1 + " WHERE id = ( SELECT MAX(" + ACTIVITY_ID +") FROM " + TABLE1 + ");";
+        String qry = "SELECT MAX(Activity_id) FROM " + TABLE1;
         Cursor cursor = db.rawQuery(qry, null);
         while (cursor.moveToNext()){
             id = cursor.getInt(0);

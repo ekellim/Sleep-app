@@ -39,9 +39,24 @@
         android:layout_marginBottom="136dp"
         android:text="Start"
         android:textSize="18sp"
+        android:onClick="launchActivity"
+        android:background="@drawable/button_design"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/setAlarm"
+        android:layout_width="257dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="24dp"
+        android:text="Set Alarm"
+        android:background="@drawable/button_design"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.493"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timePicker"
+        android:onClick="setAlarm"/>
 
 </android.support.constraint.ConstraintLayout>
