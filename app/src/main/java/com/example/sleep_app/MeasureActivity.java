@@ -29,6 +29,7 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
     TextView textView;
     TextView alarm;
     Measurement measurement;
+    int activityId;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -38,12 +39,9 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         Intent intent = getIntent();
         textView = findViewById(R.id.measureResults);
 
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
-        LocalDateTime now = LocalDateTime.now();
-
-        //Er moet nog gezorgd worden dat de ActivityID wordt meegegeven naar deze klasse zodat deze hier kan meegegeven worden masurement is toch autoincrement.
-        int activityId = parseInt(intent.getStringExtra(MainActivity.ACTIVITY_ID));
-        measurement = new Measurement(-1, activityId, dtf.format(now));
+        String time = getCurrentTime();
+        activityId = parseInt(intent.getStringExtra(MainActivity.ACTIVITY_ID));
+        measurement = new Measurement(-1, activityId, time);
 
         String clock = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
         alarm = findViewById(R.id.alarm);
@@ -58,25 +56,41 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                measurement.Merge();
-
-                MyDBHandler dbHandler = new MyDBHandler(MeasureActivity.this);
-                dbHandler.addMeasurementHandler(measurement);
-
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
-                LocalDateTime now = LocalDateTime.now();
-                measurement = new Measurement(-1, activityId, dtf.format(now));
+                MeasureActivity.this.runOnUiThread(new Runnable(){
+                    public void run(){
+                        startNewMeasurement();
+                    }
+                });
             }
         };
         Timer timer = new Timer();
-        long delay = 1*60*1000;
-        long intervalPeriod = 1*60*1000;
+        long delay = (long) (1*60*1000);
+        long intervalPeriod = (long) (1*60*1000);
         // schedules the task to be run in an interval
         timer.scheduleAtFixedRate(task, delay, intervalPeriod);
     }
 
     public void stopMeasurement(View v){
         finish();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String getCurrentTime(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void startNewMeasurement(){
+        measurement.Merge();
+
+        MyDBHandler dbHandler = new MyDBHandler(MeasureActivity.this);
+        dbHandler.addMeasurementHandler(measurement);
+        textView.setText("Updated db with next measurement: " + measurement.getTimestamp() +" and value : " + measurement.getValue());
+
+        String time = getCurrentTime();
+        measurement = new Measurement(-1, activityId, time);
     }
 
     @Override
@@ -96,11 +110,13 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
             double value = (event.values[0]+event.values[1]+event.values[2])/3;
             this.measurement.AddMeasurement(value);
 
+            /*
             textView.setText(
                 "x:" + event.values[0]+"\n"+
                 "y:" + event.values[1]+"\n"+
                 "z:" + event.values[2]
             );
+            */
         }
 
     }
