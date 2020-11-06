@@ -14,8 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.sleep_app.Fragments.View_stats_fragment;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Timer;
@@ -73,14 +71,15 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         timer.scheduleAtFixedRate(task, delay, intervalPeriod);
     }
     public void stopMeasurement(View v){
-        View_stats_fragment view_stats_fragment = new View_stats_fragment();
+        finish();
+        //View_stats_fragment view_stats_fragment = new View_stats_fragment();
         //FragmentManager manager = getFragmentManager();
         //FragmentTransaction transaction = manager.beginTransaction();
         //transaction.replace(R.id.container,view_stats_fragment,view_stats_fragment.toString());
         //transaction.addToBackStack(null);
         //transaction.commit();
         //manager.beginTransaction().replace(R.id.container, view_stats_fragment).commit();
-        getFragmentManager().beginTransaction().replace(R.id.content, view_stats_fragment).addToBackStack(null).commit();
+        //getFragmentManager().beginTransaction().replace(R.id.content, view_stats_fragment).addToBackStack(null).commit();
 
     }
 

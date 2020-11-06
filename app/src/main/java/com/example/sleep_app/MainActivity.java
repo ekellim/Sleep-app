@@ -1,11 +1,18 @@
 package com.example.sleep_app;
 
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.AlarmClock;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
+
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -14,14 +21,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
-import android.provider.AlarmClock;
-import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
         startActivity(intent);
     }
-/*
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){
         Sleep activity;
@@ -110,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
     }
-
+/*
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void launchTestActivity(View view) {
         Sleep activity;
