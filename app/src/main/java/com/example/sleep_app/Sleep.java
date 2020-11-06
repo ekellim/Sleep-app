@@ -1,28 +1,28 @@
 package com.example.sleep_app;
 
-public class Activity {
-    private int ActivityId;
+public class Sleep {
+    private int SleepId;
     String start;
     String stop;
 
     //constructor
-    public Activity(int id, String start, String stop){
-        this.ActivityId = id;
+    public Sleep(int id, String start, String stop){
+        this.SleepId = id;
         this.start = start;
         this.stop = stop;
     }
 
-    public Activity(){
+    public Sleep(){
 
     }
 
     //getters and setters
-    public int getActivityId() {
-        return ActivityId;
+    public int getSleepId() {
+        return SleepId;
     }
 
-    public void setActivityId(int activityId) {
-        ActivityId = activityId;
+    public void setSleepId(int SleepId) {
+        SleepId = SleepId;
     }
 
     public String getStart() {

@@ -8,10 +8,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
+
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.sleep_app.Fragments.View_stats_fragment;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -64,14 +67,21 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
             }
         };
         Timer timer = new Timer();
-        long delay = (long) (1*60*1000);
-        long intervalPeriod = (long) (1*60*1000);
+        long delay = 1*60*1000;
+        long intervalPeriod = 1*60*1000;
         // schedules the task to be run in an interval
         timer.scheduleAtFixedRate(task, delay, intervalPeriod);
     }
-
     public void stopMeasurement(View v){
-        finish();
+        View_stats_fragment view_stats_fragment = new View_stats_fragment();
+        //FragmentManager manager = getFragmentManager();
+        //FragmentTransaction transaction = manager.beginTransaction();
+        //transaction.replace(R.id.container,view_stats_fragment,view_stats_fragment.toString());
+        //transaction.addToBackStack(null);
+        //transaction.commit();
+        //manager.beginTransaction().replace(R.id.container, view_stats_fragment).commit();
+        getFragmentManager().beginTransaction().replace(R.id.content, view_stats_fragment).addToBackStack(null).commit();
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -110,13 +120,11 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
             double value = (event.values[0]+event.values[1]+event.values[2])/3;
             this.measurement.AddMeasurement(value);
 
-            /*
             textView.setText(
                 "x:" + event.values[0]+"\n"+
                 "y:" + event.values[1]+"\n"+
                 "z:" + event.values[2]
             );
-            */
         }
 
     }

@@ -1,20 +1,20 @@
 package com.example.sleep_app;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Measurement {
     private int MeasurementID;
-    private int ActivityID;
+    private int SleepID;
     List<Double>  ValueList = new ArrayList<Double>();
     String Timestamp = null;
     Double Value;
 
-    public Measurement(int measurementID, int activityID, String timestamp) {
+    public Measurement(int measurementID, int sleepID, String timestamp) {
         MeasurementID = measurementID;
-        ActivityID = activityID;
+        SleepID = sleepID;
         if(Timestamp == null) Timestamp = timestamp;
     }
 
@@ -35,12 +35,12 @@ public class Measurement {
         MeasurementID = measurementID;
     }
 
-    public int getActivityID() {
-        return ActivityID;
+    public int getSleepID() {
+        return SleepID;
     }
 
-    public void setActivityID(int activityID) {
-        ActivityID = activityID;
+    public void setSleepID(int sleepID) {
+        SleepID = sleepID;
     }
 
     public double getValue() {
