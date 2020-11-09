@@ -8,7 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.sleep_app.MyDBHandler;
 import com.example.sleep_app.R;
+import com.example.sleep_app.Sleep;
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -55,6 +61,7 @@ public class View_stats_fragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -62,5 +69,35 @@ public class View_stats_fragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_view_stats_fragment, container, false);
+    }
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        GraphView graph = (GraphView) getView().findViewById(R.id.graph);
+
+        // activate horizontal zooming and scrolling
+        graph.getViewport().setScalable(true);
+
+        // activate horizontal scrolling
+        graph.getViewport().setScrollable(true);
+
+        // activate horizontal and vertical zooming and scrolling
+        graph.getViewport().setScalableY(true);
+
+        // activate vertical scrolling
+        graph.getViewport().setScrollableY(true);
+
+
+        MyDBHandler dbHandler = new MyDBHandler(getActivity());
+        //int sleep_id = dbHandler.GetLastSleepId();
+        int sleep_id = 3;
+        DataPoint[] value_time_pairs = dbHandler.getSleepData(sleep_id);
+        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
+                value_time_pairs
+        );
+        graph.addSeries(series);
+
+        //graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
+        //graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+        //graph.getGridLabelRenderer().setHumanRounding(false);
     }
 }

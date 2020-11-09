@@ -5,7 +5,15 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
+
+import com.jjoe64.graphview.series.DataPoint;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class MyDBHandler extends SQLiteOpenHelper {
     //information about database
@@ -91,6 +99,35 @@ public class MyDBHandler extends SQLiteOpenHelper {
             id = cursor.getInt(0);
         }
         return id;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public DataPoint[] getSleepData(int sleep_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String qry = "SELECT Value, Timestamp FROM " + TABLE2+ " WHERE Sleep_id is " + sleep_id;
+        Cursor cursor = db.rawQuery(qry, null);
+        DataPoint[] value_time_pairs = new DataPoint[cursor.getCount()] ;
+        int i = 0;
+        while (cursor.moveToNext()){
+            String timestamp = cursor.getString(1);
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
+            LocalDateTime dateTime = LocalDateTime.from(f.parse(timestamp));
+            double time_of_day;
+            time_of_day = 0;
+            time_of_day = time_of_day + dateTime.getHour();
+            time_of_day = time_of_day + dateTime.getMinute() / 60.0;
+            time_of_day = time_of_day + dateTime.getSecond() / 3600.0;
+            value_time_pairs[i] = new DataPoint(time_of_day, cursor.getFloat(0));
+            i++;
+        }
+        return value_time_pairs;
+    }
+
+    public void UpdateStopTime(int sleep_id, String stop_time){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String qry = "UPDATE Activities SET Stop = '" + stop_time + "' WHERE Sleep_id is " + sleep_id;
+        db.execSQL(qry);
+        db.close();
     }
 
     public MainActivity findHandler(String start) {return null;}

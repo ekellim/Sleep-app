@@ -70,7 +70,11 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         // schedules the task to be run in an interval
         timer.scheduleAtFixedRate(task, delay, intervalPeriod);
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopMeasurement(View v){
+        Intent intent = new Intent();
+        intent.putExtra(Intent.EXTRA_TEXT, getCurrentTime());
+        setResult(RESULT_OK, intent);
         finish();
         //View_stats_fragment view_stats_fragment = new View_stats_fragment();
         //FragmentManager manager = getFragmentManager();

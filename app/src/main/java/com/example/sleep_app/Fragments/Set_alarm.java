@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -42,6 +43,7 @@ public class Set_alarm extends Fragment {
 
     public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
+    private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
 
     SensorManager sensorManager;
     Sensor sensor;
@@ -182,7 +184,20 @@ public class Set_alarm extends Fragment {
 
         intent.putExtra(EXTRA_MESSAGE, values);
         intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
-        startActivity(intent);
+        startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == SECOND_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == -1) {
+                Log.i("my_tag", "Ik kom hier");
+                MyDBHandler dbHandler = new MyDBHandler(getActivity());
+                int activityId = dbHandler.GetLastSleepId();
+                dbHandler.UpdateStopTime(activityId, data.getStringExtra(Intent.EXTRA_TEXT));
+            }
+        }
     }
 
     @Override

@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    /*@RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){
         Sleep activity;
         Intent intent = new Intent(MainActivity.this, MeasureActivity.class);
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         String message = values;
         intent.putExtra(EXTRA_MESSAGE, message);
         startActivity(intent);
-    }
+    }*/
 /*
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void launchTestActivity(View view) {
