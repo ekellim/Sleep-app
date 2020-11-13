@@ -10,9 +10,7 @@ import android.view.ViewGroup;
 
 import com.example.sleep_app.MyDBHandler;
 import com.example.sleep_app.R;
-import com.example.sleep_app.Sleep;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 

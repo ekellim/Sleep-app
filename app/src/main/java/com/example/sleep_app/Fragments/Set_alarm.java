@@ -9,6 +9,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.AlarmClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,6 +32,7 @@ import com.example.sleep_app.MeasureActivity;
 import com.example.sleep_app.MyDBHandler;
 import com.example.sleep_app.R;
 import com.example.sleep_app.Sleep;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -52,6 +54,8 @@ public class Set_alarm extends Fragment {
     TimePicker timePicker;
     TimePicker.OnTimeChangedListener setTime;
     MyDBHandler db;
+    Button startButton;
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -153,9 +157,9 @@ public class Set_alarm extends Fragment {
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //db = new MyDBHandler();
-        Button button= (Button) view.findViewById(R.id.start_button);
-        //button.setEnabled(false);
-        button.setOnClickListener(new View.OnClickListener() {
+        startButton = (Button) view.findViewById(R.id.start_button);
+        startButton.setEnabled(false);
+        startButton.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -163,6 +167,26 @@ public class Set_alarm extends Fragment {
                 startSleepMeasure(v);
             }
         });
+
+        FloatingActionButton fab = view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                setAlarm(v);
+            }
+        });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void setAlarm(View view){
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+
+        startButton.setEnabled(true);
+
+        intent.putExtra(AlarmClock.EXTRA_HOUR, timePicker.getHour());
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
+        startActivity(intent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
