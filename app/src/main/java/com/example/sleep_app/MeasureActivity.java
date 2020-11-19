@@ -71,7 +71,12 @@ public class MeasureActivity extends AppCompatActivity {
         intentService.putExtra(Intent.EXTRA_TEXT, getCurrentTime());
         setResult(RESULT_OK, intentService);
 
-        stopService(intentService);
+        try {
+            stopService(intentService);
+        }
+        catch (Exception e){
+            Log.e("STOP MEASUREMENT", "stopMeasurement: service couldn't be stoped or has already stoped: " + e);
+        }
         //Navigation.findNavController(v).navigate(R.id.action_nav_first_fragment_to_nav_second_fragment);
         finish();
     }

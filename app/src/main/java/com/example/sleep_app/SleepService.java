@@ -39,7 +39,7 @@ public class SleepService extends Service implements SensorEventListener {
     Sensor sensor;
     Measurement measurement;
     int activityId;
-    String timer;
+    String timer[];
     Timer timerT;
 
 
@@ -54,7 +54,7 @@ public class SleepService extends Service implements SensorEventListener {
         createNotificationChannel();
         String time = getCurrentTime();
         activityId = parseInt(intent.getExtras().getString(ACTIVITY_ID));
-        timer = intent.getExtras().getStringArray(TIMER)[0] + ":" +intent.getExtras().getStringArray(TIMER)[1];
+        timer = intent.getExtras().getStringArray(TIMER);
 
         measurement = new Measurement(-1, activityId, time);
 
@@ -66,7 +66,7 @@ public class SleepService extends Service implements SensorEventListener {
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Sleep app")
-                .setContentText("Slaap wordt momenteel gemeten, alarm gaat af om " + timer + ".")
+                .setContentText("Slaap wordt momenteel gemeten, alarm gaat af om " + timer[0] + ":" + timer[1] + ".")
                 .setSmallIcon(R.drawable.set_alarm_icon)
                 .setContentIntent(pendingIntent)
                 .build();
@@ -122,6 +122,12 @@ public class SleepService extends Service implements SensorEventListener {
         //textView.setText("Updated db with next measurement: " + measurement.getTimestamp() +" and value : " + measurement.getValue());
 
         String time = getCurrentTime();
+        String timesplit[] = time.split(":");
+
+        if(parseInt(timesplit[0]) >= parseInt(timer[0])){
+            if(parseInt(timesplit[1]) >= parseInt(timer[1])) stopSelf();
+        }
+
         measurement = new Measurement(-1, activityId, time);
     }
 
