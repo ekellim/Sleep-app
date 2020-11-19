@@ -1,7 +1,9 @@
 package com.example.sleep_app.Fragments;
 
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -68,6 +70,7 @@ public class View_stats_fragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_view_stats_fragment, container, false);
     }
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
         GraphView graph = (GraphView) getView().findViewById(R.id.graph);
@@ -86,8 +89,8 @@ public class View_stats_fragment extends Fragment {
 
 
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
-        //int sleep_id = dbHandler.GetLastSleepId();
-        int sleep_id = 3;
+        int sleep_id = dbHandler.GetLastSleepId();
+        //int sleep_id = 3;
         DataPoint[] value_time_pairs = dbHandler.getSleepData(sleep_id);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
                 value_time_pairs

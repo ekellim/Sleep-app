@@ -8,11 +8,19 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.ActionOnlyNavDirections;
+import androidx.navigation.NavController;
+import androidx.navigation.NavDirections;
+import androidx.navigation.NavHostController;
+import androidx.navigation.Navigation;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,14 +31,15 @@ import static java.lang.Integer.parseInt;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
-public class MeasureActivity extends AppCompatActivity implements SensorEventListener {
+public class MeasureActivity extends AppCompatActivity {
 
-    SensorManager sensorManager;
-    Sensor sensor;
+    public static final String TIMER = "com.example.myfirstapp.MESSAGE";
+    public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     TextView textView;
     TextView alarm;
     Measurement measurement;
     int activityId;
+    String values[];
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -42,49 +51,29 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
 
         String time = getCurrentTime();
         activityId = parseInt(intent.getStringExtra(MainActivity.ACTIVITY_ID));
+        values = intent.getStringArrayExtra(MainActivity.TIMER);
         measurement = new Measurement(-1, activityId, time);
 
-        String clock = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+        String clock = intent.getStringExtra(MainActivity.TIMER);
         alarm = findViewById(R.id.alarm);
-        alarm.setText(clock);
+        alarm.setText(values[0]+":"+values[1]);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        Intent intentService = new Intent(this, SleepService.class);
+        intentService.putExtra(TIMER, values);
+        intentService.putExtra(ACTIVITY_ID, Integer.toString(activityId));
 
-        //Om de 5 min wordt een gemiddelde van de metingen genomen.
-        //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
-        //Dit gebeurd met deze TimerTask
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                MeasureActivity.this.runOnUiThread(new Runnable(){
-                    public void run(){
-                        startNewMeasurement();
-                    }
-                });
-            }
-        };
-        Timer timer = new Timer();
-        long delay = 1*60*1000;
-        long intervalPeriod = 1*60*1000;
-        // schedules the task to be run in an interval
-        timer.scheduleAtFixedRate(task, delay, intervalPeriod);
+        startService(intentService);
     }
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void stopMeasurement(View v){
-        Intent intent = new Intent();
-        intent.putExtra(Intent.EXTRA_TEXT, getCurrentTime());
-        setResult(RESULT_OK, intent);
-        finish();
-        //View_stats_fragment view_stats_fragment = new View_stats_fragment();
-        //FragmentManager manager = getFragmentManager();
-        //FragmentTransaction transaction = manager.beginTransaction();
-        //transaction.replace(R.id.container,view_stats_fragment,view_stats_fragment.toString());
-        //transaction.addToBackStack(null);
-        //transaction.commit();
-        //manager.beginTransaction().replace(R.id.container, view_stats_fragment).commit();
-        //getFragmentManager().beginTransaction().replace(R.id.content, view_stats_fragment).addToBackStack(null).commit();
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void stopMeasurement(View v) throws InterruptedException {
+        Intent intentService = new Intent(this, SleepService.class);
+        intentService.putExtra(Intent.EXTRA_TEXT, getCurrentTime());
+        setResult(RESULT_OK, intentService);
+
+        stopService(intentService);
+        //Navigation.findNavController(v).navigate(R.id.action_nav_first_fragment_to_nav_second_fragment);
+        finish();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -92,48 +81,5 @@ public class MeasureActivity extends AppCompatActivity implements SensorEventLis
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void startNewMeasurement(){
-        measurement.Merge();
-
-        MyDBHandler dbHandler = new MyDBHandler(MeasureActivity.this);
-        dbHandler.addMeasurementHandler(measurement);
-        textView.setText("Updated db with next measurement: " + measurement.getTimestamp() +" and value : " + measurement.getValue());
-
-        String time = getCurrentTime();
-        measurement = new Measurement(-1, activityId, time);
-    }
-
-    @Override
-    protected void onPause(){
-        super.onPause();
-        sensorManager.unregisterListener((SensorEventListener) this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        sensorManager.registerListener((SensorEventListener) this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
-            double value = (event.values[0]+event.values[1]+event.values[2])/3;
-            this.measurement.AddMeasurement(value);
-
-            textView.setText(
-                "x:" + event.values[0]+"\n"+
-                "y:" + event.values[1]+"\n"+
-                "z:" + event.values[2]
-            );
-        }
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 }

@@ -9,7 +9,11 @@
         android:id="@+id/nav_first_fragment"
         android:name="com.example.sleep_app.Fragments.Set_alarm"
         android:label="@string/set_alarm_str"
-        tools:layout="@layout/fragment_set_alarm" />
+        tools:layout="@layout/fragment_set_alarm" >
+        <action
+            android:id="@+id/action_nav_first_fragment_to_nav_second_fragment"
+            app:destination="@id/nav_second_fragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_second_fragment"

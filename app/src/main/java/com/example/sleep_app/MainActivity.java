@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    public static final String TIMER = "com.example.myfirstapp.MESSAGE";
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
 
     SensorManager sensorManager;
@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
         String message = values;
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(TIMER, message);
         startActivity(intent);
     }*/
 /*
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
         String message = values;
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(TIMER, message);
         startActivity(intent);
     }
 */

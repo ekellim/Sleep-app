@@ -10,21 +10,20 @@
         android:id="@+id/title"
         android:layout_width="319dp"
         android:layout_height="34dp"
+        android:layout_marginTop="56dp"
         android:fontFamily="@font/roboto_mono_light"
         android:textSize="24sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.071" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TimePicker
         android:id="@+id/timePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
+        android:layout_marginTop="44dp"
         android:clickable="false"
         android:timePickerMode="spinner"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,26 +35,29 @@
         android:id="@+id/start_button"
         android:layout_width="256dp"
         android:layout_height="47dp"
-        android:layout_marginBottom="136dp"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/button_design"
         android:text="@string/start"
         android:textSize="18sp"
-        android:background="@drawable/button_design"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="28dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/setAlarm_button"
+        android:layout_width="256dp"
+        android:layout_height="47dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/button_design"
+        android:text="SET ALARM"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/start_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_lock_idle_alarm"/>
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timePicker"
+        app:layout_constraintVertical_bias="1.0" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
