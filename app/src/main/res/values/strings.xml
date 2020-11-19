@@ -23,4 +23,6 @@
     <string name="settings_str">Settings</string>
     <string name="start">Start</string>
     <string name="authors">Authors</string>
+    <string name="this_night">Show this night</string>
+    <string name="start_str">\"Start: \"</string>
 </resources>

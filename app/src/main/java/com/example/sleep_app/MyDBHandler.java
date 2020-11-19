@@ -80,6 +80,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
         String qry = "SELECT * FROM "+TABLE1;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(qry, null);
+        result += String.valueOf(cursor.getCount()) + System.getProperty("line.separator");
         while (cursor.moveToNext()){
             int result_0 = cursor.getInt(0);
             String result_1 = cursor.getString(1);
