@@ -129,12 +129,6 @@ public class SleepService extends Service implements SensorEventListener {
        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
            double value = (event.values[0]+event.values[1]+event.values[2])/3;
            this.measurement.AddMeasurement(value);
-            /*
-           textView.setText(
-               "x:" + event.values[0]+"\n"+
-               "y:" + event.values[1]+"\n"+
-               "z:" + event.values[2]
-           );*/
        }
    }
 
