@@ -51,7 +51,7 @@ public class SleepService extends Service implements SensorEventListener {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //createNotificationChannel();
+        createNotificationChannel();
         String time = getCurrentTime();
         activityId = parseInt(intent.getExtras().getString(ACTIVITY_ID));
         timer = intent.getExtras().getStringArray(TIMER)[0] + ":" +intent.getExtras().getStringArray(TIMER)[1];
@@ -97,14 +97,14 @@ public class SleepService extends Service implements SensorEventListener {
         return START_REDELIVER_INTENT;
     }
 
-   /* public void createNotificationChannel(){
+   public void createNotificationChannel(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel notificationChannel = new NotificationChannel(
                     CHANNEL_ID, "ForegroundNotification", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(notificationChannel);
         }
-    }*/
+    }
 
    @RequiresApi(api = Build.VERSION_CODES.O)
    private String getCurrentTime(){
