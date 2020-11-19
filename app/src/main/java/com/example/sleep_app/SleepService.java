@@ -40,6 +40,7 @@ public class SleepService extends Service implements SensorEventListener {
     Measurement measurement;
     int activityId;
     String timer;
+    Timer timerT;
 
 
     @Override
@@ -83,11 +84,11 @@ public class SleepService extends Service implements SensorEventListener {
                 startNewMeasurement();
             }
         };
-        Timer timer = new Timer();
+        timerT = new Timer();
         long delay = 1*60*1000;
         long intervalPeriod = 1*60*1000;
         // schedules the task to be run in an interval
-        timer.scheduleAtFixedRate(task, delay, intervalPeriod);
+        timerT.scheduleAtFixedRate(task, delay, intervalPeriod);
 
         startForeground(1, notification);
         Log.d("SleepService",  "Service started");
@@ -134,6 +135,7 @@ public class SleepService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy(){
+       timerT.cancel();
         super.onDestroy();
     }
     @Nullable
