@@ -2,6 +2,10 @@ package com.example.sleep_app.Fragments;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Service;
+import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -9,6 +13,7 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.AlarmClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,6 +36,8 @@ import com.example.sleep_app.MeasureActivity;
 import com.example.sleep_app.MyDBHandler;
 import com.example.sleep_app.R;
 import com.example.sleep_app.Sleep;
+import com.example.sleep_app.SleepService;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -41,17 +48,20 @@ import java.time.format.DateTimeFormatter;
  */
 public class Set_alarm extends Fragment {
 
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    public static final String TIMER = "com.example.myfirstapp.MESSAGE";
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
+    public static final String CHANNEL_ID = "sleepAppServiceChannel";
 
     SensorManager sensorManager;
     Sensor sensor;
     TextView textView;
-    String values;
+    String values[];
     TimePicker timePicker;
     TimePicker.OnTimeChangedListener setTime;
     MyDBHandler db;
+    Button startButton;
+
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -153,20 +163,70 @@ public class Set_alarm extends Fragment {
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //db = new MyDBHandler();
-        Button button= (Button) view.findViewById(R.id.start_button);
-        //button.setEnabled(false);
-        button.setOnClickListener(new View.OnClickListener() {
+        startButton = (Button) view.findViewById(R.id.start_button);
+        startButton.setActivated(false);
+        startButton.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
+                if(!startButton.isActivated()){
+                    Snackbar.make(view, "You have to set an alarm first", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                    return;
+                }
                 startSleepMeasure(v);
+                //testService(v);
+            }
+        });
+
+        Button setAlarmButton = view.findViewById(R.id.setAlarm_button);
+        setAlarmButton.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
+            @Override
+            public void onClick(View v) {
+                setAlarm(v);
             }
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void setAlarm(View view){
+        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
+
+        startButton.setActivated(true);
+
+        intent.putExtra(AlarmClock.EXTRA_HOUR, timePicker.getHour());
+        intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
+        startActivity(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void testService(View v){
+        Intent intent = new Intent(getActivity(), SleepService.class);
+        Sleep activity;
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
+        LocalDateTime now = LocalDateTime.now();
+        try {
+            activity = new Sleep(-1, dtf.format(now), "null");
+        } catch (Exception e){
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            activity = new Sleep(-1, "error", "error");
+        }
+        MyDBHandler dbHandler = new MyDBHandler(getActivity());
+        dbHandler.addActivityHandler(activity);
+        int activityId = dbHandler.GetLastSleepId();
+        //values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
+        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute())};
+
+        intent.putExtra(TIMER, values);
+        intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
+        getActivity().startService(intent);
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){
+        createNotification();
         Sleep activity;
         Intent intent = new Intent(getActivity(), MeasureActivity.class);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
@@ -180,11 +240,21 @@ public class Set_alarm extends Fragment {
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
         dbHandler.addActivityHandler(activity);
         int activityId = dbHandler.GetLastSleepId();
-        values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
+        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute())};
 
-        intent.putExtra(EXTRA_MESSAGE, values);
+        intent.putExtra(TIMER, values);
         intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
         startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE);
+    }
+
+    public void createNotification(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            NotificationChannel serviceChannel = new NotificationChannel(
+                CHANNEL_ID,"Sleep app Service Channel",NotificationManager.IMPORTANCE_DEFAULT);
+
+            NotificationManager manager = getActivity().getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(serviceChannel);
+        }
     }
 
     @Override

@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String EXTRA_MESSAGE = "com.example.myfirstapp.MESSAGE";
+    public static final String TIMER = "com.example.myfirstapp.MESSAGE";
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
 
     SensorManager sensorManager;
@@ -52,16 +52,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+/*
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                       .setAction("Action", null).show();
                 //Werkt nog niet omdat timepicker niet gevonden wordt.
-                // setAlarm(view);
+                //setAlarm(view);
             }
         });
+
+ */
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         // Passing each menu ID as a set of Ids because each
@@ -75,17 +79,6 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    public void setAlarm(View v){
-        Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
-
-        Button button= (Button) findViewById(R.id.start_button);
-        button.setEnabled(true);
-
-        intent.putExtra(AlarmClock.EXTRA_HOUR, timePicker.getHour());
-        intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
-        startActivity(intent);
-    }
 
     /*@RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){
@@ -106,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
         values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
         String message = values;
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(TIMER, message);
         startActivity(intent);
     }*/
 /*
@@ -127,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
         values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
         String message = values;
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(TIMER, message);
         startActivity(intent);
     }
 */

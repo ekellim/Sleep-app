@@ -13,6 +13,7 @@
         android:onClick="stopMeasurement"
         android:text="Stop"
         android:textSize="18sp"
+        android:background="@drawable/button_design"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.496"
