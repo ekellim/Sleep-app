@@ -82,4 +82,5 @@ public class MeasureActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
+
 }

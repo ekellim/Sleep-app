@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.sleep_app.MeasureActivity;
 import com.example.sleep_app.MyDBHandler;
@@ -281,6 +282,7 @@ public class Set_alarm extends Fragment {
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
+        //NavHostFragment.findNavController(this).navigate(R.id.action_nav_first_fragment_to_nav_second_fragment);
     }
 
     @Override
@@ -358,5 +360,7 @@ public class Set_alarm extends Fragment {
         }
         return actionBar;
     }
+
+
 
 }
