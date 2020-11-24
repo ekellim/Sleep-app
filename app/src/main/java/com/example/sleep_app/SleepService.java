@@ -4,31 +4,27 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.icu.util.Measure;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.app.PendingIntent;
-import android.os.SystemClock;
 import android.util.Log;
-import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Timer;
-import java.util.TimerTask;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
 import static java.lang.Integer.parseInt;
 
 public class SleepService extends Service implements SensorEventListener {
@@ -41,6 +37,7 @@ public class SleepService extends Service implements SensorEventListener {
     Sensor sensor;
     Measurement measurement;
     int activityId;
+    Handler handler;
     String timer[];
     Timer timerT;
 
@@ -78,7 +75,11 @@ public class SleepService extends Service implements SensorEventListener {
 
         createTask();
 
-        startForeground(1, notification);   
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.example.sleepapp.UNREGISTER");
+        registerReceiver(receiver, intentFilter);
+
+        startForeground(1, notification);
 
         return START_REDELIVER_INTENT;
     }
@@ -87,8 +88,8 @@ public class SleepService extends Service implements SensorEventListener {
         //Om de 5 min wordt een gemiddelde van de metingen genomen.
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
-        Handler handler = new Handler();
-        long delay = 10*1000;
+        handler = new Handler();
+        long delay = 1*60*1000;
 
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -157,12 +158,37 @@ public class SleepService extends Service implements SensorEventListener {
        }
    }
 
+    public BroadcastReceiver receiver = new BroadcastReceiver() {
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            Log.i("Boadcast receiver", "Receiver has received! items wil be unregistred.");
+            unregister();
+        }
+    };
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void unregister(){
+        sensorManager.unregisterListener(this, sensor);
+        handler.removeCallbacksAndMessages(null);
+        measurement.Merge();
+        unregisterReceiver(receiver);
+    }
+
     @Override
     public void onDestroy(){
-        sensorManager.unregisterListener(this, sensor);
+        try{
+            sensorManager.unregisterListener(this, sensor);
+            unregisterReceiver(receiver);
+        } catch (Exception e){
+            Log.d("OnDestroy", "Error on destroy : " + e.toString());
+        }
+
         super.onDestroy();
     }
-    @Nullable
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -171,11 +197,5 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
-
-    public void onStop(){
-        sensorManager.unregisterListener(this, sensor);
-    }
-
-
 
 }

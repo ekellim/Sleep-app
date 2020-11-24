@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -73,6 +74,7 @@ public class MeasureActivity extends AppCompatActivity {
         setResult(RESULT_OK, intentService);
 
         try {
+            sendBroadcast();
             stopService(intentService);
         }
         catch (Exception e){
@@ -89,11 +91,11 @@ public class MeasureActivity extends AppCompatActivity {
         return dtf.format(now);
     }
 
-    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String value = intent.getStringExtra("DATAPASSED");
-            textView.setText(value);
-        }
-    };
+    public void sendBroadcast(){
+        Intent intent = new Intent();
+        intent.setAction("com.example.sleepapp.UNREGISTER");
+        Log.d("sendBroadcast", "Broadcast will be send!");
+        sendBroadcast(intent);
+    }
+
 }
