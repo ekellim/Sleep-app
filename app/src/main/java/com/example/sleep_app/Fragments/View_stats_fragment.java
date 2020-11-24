@@ -22,6 +22,8 @@ import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.SimpleDateFormat;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link View_stats_fragment#newInstance} factory method to
@@ -84,7 +86,7 @@ public class View_stats_fragment extends Fragment {
         int count = Integer.parseInt(lines[0]);
 
 
-        for (int i=1; i<count+1; i++){
+        for (int i=count; i>0; i--){
             String[] data = lines[i].split(" ");
 
 
@@ -128,11 +130,6 @@ public class View_stats_fragment extends Fragment {
         int sleep_id = dbHandler.GetLastSleepId();
         sleep_id=3; //Voor tests
         ShowNightGraph(sleep_id, dbHandler);
-
-
-        //graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity()));
-        //graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
-        //graph.getGridLabelRenderer().setHumanRounding(false);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -156,5 +153,14 @@ public class View_stats_fragment extends Fragment {
                 value_time_pairs
         );
         graph.addSeries(series);
+
+        String strHourFormat = "HH:mm";
+        SimpleDateFormat sdf = new SimpleDateFormat(strHourFormat);
+        sdf = new SimpleDateFormat(strHourFormat);
+
+        graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity(), sdf));
+        //graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
+        //graph.getGridLabelRenderer().setHumanRounding(false);
     }
+
 }

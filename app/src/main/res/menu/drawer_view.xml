@@ -5,15 +5,15 @@
         <item
             android:id="@+id/nav_first_fragment"
             android:icon="@drawable/set_alarm_icon"
-            android:title="Set alarm"
+            android:title="@string/set_alarm"
             android:checked="true"/>
         <item
             android:id="@+id/nav_second_fragment"
-            android:icon="@drawable/set_alarm_icon"
-            android:title="Second" />
+            android:icon="@drawable/view_stats_icon24"
+            android:title="@string/my_nights" />
         <item
             android:id="@+id/nav_third_fragment"
-            android:icon="@drawable/set_alarm_icon"
-            android:title="Third" />
+            android:icon="@drawable/settings_icon_24"
+            android:title="@string/settings" />
     </group>
 </menu>

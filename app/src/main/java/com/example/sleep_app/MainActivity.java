@@ -1,13 +1,16 @@
 package com.example.sleep_app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.AlarmClock;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -17,11 +20,15 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceManager;
 
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -43,12 +50,39 @@ public class MainActivity extends AppCompatActivity {
     MyDBHandler db;
 
     private AppBarConfiguration mAppBarConfiguration;
+    private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        String deftheme = sharedPreferences.getString("mode", "light");
+        if (deftheme.equals("night")){
+            setTheme(R.style.NightTheme);
+        }
+        else if (deftheme.equals("light")){
+            setTheme(R.style.AppTheme);
+        }
+        listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+                if (key.equals("mode")) {
+                    String mode = sharedPreferences.getString("mode", "light");
+                    if (mode.equals("night")) {
+                        setTheme(R.style.NightTheme);
+                        Log.d("MainActivity",  "Night mode on");
+                        recreate();
+                    } else if (mode.equals("light")) {
+                        //Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+                        setTheme(R.style.AppTheme);
+                        recreate();
+                    }
+                }
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -79,6 +113,20 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navigationView, navController);
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("MainActivity", getForegroundFragment().toString());
+        if (getForegroundFragment().toString().contains("Set_alarm")){
+            Navigation.findNavController(this, R.id.nav_host_fragment).navigate(R.id.action_nav_first_fragment_to_nav_second_fragment);
+        };
+
+    }
+
+    public Fragment getForegroundFragment(){
+        Fragment navHostFragment = getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        return navHostFragment == null ? null : navHostFragment.getChildFragmentManager().getFragments().get(0);
+    }
 
     /*@RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){

@@ -13,6 +13,8 @@ import androidx.annotation.RequiresApi;
 import com.jjoe64.graphview.series.DataPoint;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
 public class MyDBHandler extends SQLiteOpenHelper {
@@ -115,9 +117,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
             LocalDateTime dateTime = LocalDateTime.from(f.parse(timestamp));
             double time_of_day;
             time_of_day = 0;
-            time_of_day = time_of_day + dateTime.getHour();
-            time_of_day = time_of_day + dateTime.getMinute() / 60.0;
-            time_of_day = time_of_day + dateTime.getSecond() / 3600.0;
+            time_of_day = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             value_time_pairs[i] = new DataPoint(time_of_day, cursor.getFloat(0));
             i++;
         }
