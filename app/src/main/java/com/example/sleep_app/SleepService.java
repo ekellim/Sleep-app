@@ -6,15 +6,16 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.icu.util.Measure;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.app.PendingIntent;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -40,8 +41,8 @@ public class SleepService extends Service implements SensorEventListener {
     Sensor sensor;
     Measurement measurement;
     int activityId;
-    String timer;
-
+    String timer[];
+    Timer timerT;
 
     @Override
     public void onCreate(){
@@ -51,22 +52,23 @@ public class SleepService extends Service implements SensorEventListener {
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //createNotificationChannel();
+        createNotificationChannel();
         String time = getCurrentTime();
         activityId = parseInt(intent.getExtras().getString(ACTIVITY_ID));
-        timer = intent.getExtras().getStringArray(TIMER)[0] + ":" +intent.getExtras().getStringArray(TIMER)[1];
+        timer = intent.getExtras().getStringArray(TIMER);
 
         measurement = new Measurement(-1, activityId, time);
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         Intent notificationIntent = new Intent(this, MeasureActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Sleep app")
-                .setContentText("Slaap wordt momenteel gemeten, alarm gaat af om " + timer + ".")
+                .setContentText("Slaap wordt momenteel gemeten, alarm gaat af om " + timer[0] + ":" + timer[1] + ".")
                 .setSmallIcon(R.drawable.set_alarm_icon)
                 .setContentIntent(pendingIntent)
                 .build();
@@ -74,63 +76,40 @@ public class SleepService extends Service implements SensorEventListener {
         notificationIntent.putExtra(TIMER, timer);
         notificationIntent.putExtra(ACTIVITY_ID, activityId);
 
-        //Om de 5 min wordt een gemiddelde van de metingen genomen.
-        //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
-        //Dit gebeurd met deze TimerTask
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                Log.d("SleepService",  "New measurement is going to start");
-                startNewMeasurement();
-            }
-        };
-        Timer timer = new Timer();
-        long delay = 1*60*1000;
-        long intervalPeriod = 1*60*1000;
-        // schedules the task to be run in an interval
-        timer.scheduleAtFixedRate(task, delay, intervalPeriod);
+        createTask();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-            startMyOwnForeground();
-        else
-            startForeground(1, new Notification());
-
-        //startForeground(1, notification);
-        Log.d("SleepService",  "Service started");
-        //Log.d("SleepService",  "Timer task activated");
+        startForeground(1, notification);   
 
         return START_REDELIVER_INTENT;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void startMyOwnForeground(){
-        String NOTIFICATION_CHANNEL_ID = "com.example.sleep_app";
-        String channelName = "Sleep app";
-        NotificationChannel chan = new NotificationChannel(NOTIFICATION_CHANNEL_ID, channelName, NotificationManager.IMPORTANCE_NONE);
-        chan.setLightColor(Color.BLUE);
-        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        assert manager != null;
-        manager.createNotificationChannel(chan);
+    public void createTask(){
+        //Om de 5 min wordt een gemiddelde van de metingen genomen.
+        //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
+        //Dit gebeurd met deze TimerTask
+        Handler handler = new Handler();
+        long delay = 10*1000;
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
-        Notification notification = notificationBuilder.setOngoing(true)
-                .setSmallIcon(R.drawable.set_alarm_icon)
-                .setContentTitle("App is running in background")
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
-                .build();
-        startForeground(2, notification);
+        Runnable runnable = new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void run() {
+                Log.d("SleepService",  "New measurement is going to start");
+                startNewMeasurement();
+                handler.postDelayed(this, delay);
+            }
+        };
+        handler.postDelayed(runnable, delay);
     }
 
-   /* public void createNotificationChannel(){
+   public void createNotificationChannel(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel notificationChannel = new NotificationChannel(
                     CHANNEL_ID, "ForegroundNotification", NotificationManager.IMPORTANCE_DEFAULT);
             NotificationManager manager = getSystemService(NotificationManager.class);
             manager.createNotificationChannel(notificationChannel);
         }
-    }*/
+    }
 
    @RequiresApi(api = Build.VERSION_CODES.O)
    private String getCurrentTime(){
@@ -141,6 +120,8 @@ public class SleepService extends Service implements SensorEventListener {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void startNewMeasurement(){
+        //measurement.ShowValueList();
+        sensorManager.unregisterListener(this, sensor);
         measurement.Merge();
 
         MyDBHandler dbHandler = new MyDBHandler(this);
@@ -148,19 +129,37 @@ public class SleepService extends Service implements SensorEventListener {
         //textView.setText("Updated db with next measurement: " + measurement.getTimestamp() +" and value : " + measurement.getValue());
 
         String time = getCurrentTime();
+        String timesplit[] = time.split(":");
+
+        if(parseInt(timesplit[0]) >= parseInt(timer[0])){
+            if(parseInt(timesplit[1]) >= parseInt(timer[1])){
+                sensorManager.unregisterListener(this, sensor);
+                stopSelf();
+            }
+        }
+
         measurement = new Measurement(-1, activityId, time);
+        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
    @Override
    public void onSensorChanged(SensorEvent event) {
        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION){
-           double value = (event.values[0]+event.values[1]+event.values[2])/3;
+           Intent intent1 = new Intent();
+           intent1.setAction("com.example.myfirstapp.DATAPASSED");
+
+           double value = (Math.abs(event.values[0])+Math.abs(event.values[1])+Math.abs(event.values[2]))/3;
+           //double value = Math.max(Math.abs(event.values[0]), Math.max(Math.abs(event.values[1]), Math.abs(event.values[2])));
+           Log.d("SENSOR Value", "onSensorChanged: value to db = " + value  );
            this.measurement.AddMeasurement(value);
+           intent1.putExtra("DATAPASSED", value);
+           sendBroadcast(intent1);
        }
    }
 
     @Override
     public void onDestroy(){
+        sensorManager.unregisterListener(this, sensor);
         super.onDestroy();
     }
     @Nullable
@@ -172,4 +171,11 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+
+    public void onStop(){
+        sensorManager.unregisterListener(this, sensor);
+    }
+
+
+
 }
