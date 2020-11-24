@@ -78,9 +78,7 @@ public class SleepService extends Service implements SensorEventListener {
 
         createTask();
 
-        startForeground(1, notification);
-        Log.d("SleepService",  "Service started");
-        //Log.d("SleepService",  "Timer task activated");
+        startForeground(1, notification);   
 
         return START_REDELIVER_INTENT;
     }
