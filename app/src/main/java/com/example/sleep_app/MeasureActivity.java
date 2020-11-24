@@ -1,5 +1,6 @@
 package com.example.sleep_app;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -87,4 +88,12 @@ public class MeasureActivity extends AppCompatActivity {
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
+
+    BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String value = intent.getStringExtra("DATAPASSED");
+            textView.setText(value);
+        }
+    };
 }
