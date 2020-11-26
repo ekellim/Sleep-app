@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_first_fragment"
+            android:icon="@drawable/set_alarm_icon"
+            android:title="@string/set_alarm"
+            android:checked="true"/>
+        <item
+            android:id="@+id/nav_second_fragment"
+            android:icon="@drawable/view_stats_icon24"
+            android:title="@string/my_nights" />
+        <item
+            android:id="@+id/nav_third_fragment"
+            android:icon="@drawable/settings_icon_24"
+            android:title="@string/settings" />
+    </group>
+</menu>
