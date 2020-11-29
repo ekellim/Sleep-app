@@ -1,5 +1,6 @@
 package com.example.sleep_app.Fragments;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,6 +40,11 @@ public class View_stats_fragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    //popup window variables
+    private AlertDialog.Builder dialogBuilder;
+    private AlertDialog dialog;
+    private Button buttonClose;
 
     public View_stats_fragment() {
         // Required empty public constructor
@@ -110,6 +116,16 @@ public class View_stats_fragment extends Fragment {
                 }
             });
 
+            Button deleteButton = new Button(getActivity());
+            deleteButton.setText("X");
+            deleteButton.setId(10000 + (i-1));
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v){
+                    dbHandler.deleteSleep(sleep_id);
+                    linearLayout.postInvalidate();
+                }
+            });
+
             TextView test = new TextView(getActivity());
             test.setText(String.format("%s%s", getString(R.string.start_str), data[1]));
             test.setId(i-1);
@@ -119,6 +135,7 @@ public class View_stats_fragment extends Fragment {
 
             ((LinearLayout) linearLayout).addView(test);
             ((LinearLayout) linearLayout).addView(btn);
+            ((LinearLayout) linearLayout).addView(deleteButton);
             ((LinearLayout) linearLayout).addView(divider);
         }
         return v;
@@ -128,8 +145,15 @@ public class View_stats_fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
         int sleep_id = dbHandler.GetLastSleepId();
-        sleep_id=3; //Voor tests
+        //sleep_id=3; //Voor tests
         ShowNightGraph(sleep_id, dbHandler);
+        Button moreInfo = view.findViewById(R.id.buttonMoreInfo);
+        moreInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                moreInfoDialog(v);
+            }
+        });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -161,6 +185,23 @@ public class View_stats_fragment extends Fragment {
         graph.getGridLabelRenderer().setLabelFormatter(new DateAsXAxisLabelFormatter(getActivity(), sdf));
         //graph.getGridLabelRenderer().setNumHorizontalLabels(3); // only 4 because of the space
         //graph.getGridLabelRenderer().setHumanRounding(false);
+    }
+
+    public void moreInfoDialog(View view){
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+
+        dialogBuilder.setView(moreInfoPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        buttonClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
 }

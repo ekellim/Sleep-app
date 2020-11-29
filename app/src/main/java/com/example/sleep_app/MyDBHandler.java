@@ -131,6 +131,15 @@ public class MyDBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteSleep(int sleep_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String qry = "DELETE FROM " + TABLE2 + " WHERE Sleep_id is " + sleep_id;
+        db.execSQL(qry);
+        qry = "DELETE FROM " + TABLE1 + " WHERE Sleep_id is " + sleep_id;
+        db.execSQL(qry);
+        db.close();
+    }
+
     public MainActivity findHandler(String start) {return null;}
     public boolean deleteHandler(int ID){return false;}
     public boolean UpdateHandler(int ID, String name){return false;}

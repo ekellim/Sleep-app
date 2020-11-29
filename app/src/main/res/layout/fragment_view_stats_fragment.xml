@@ -2,9 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewstats_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/viewstats_layout"
+    android:foregroundGravity="top"
     tools:context=".Fragments.View_stats_fragment">
 
     <!-- TODO: Update blank fragment layout -->
@@ -32,5 +33,16 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
     </ScrollView>
+
+    <Button
+        android:id="@+id/buttonMoreInfo"
+        android:layout_width="52dp"
+        android:layout_height="53dp"
+        android:layout_gravity="top"
+        android:background="@drawable/button_design"
+        android:text="+"
+        android:textSize="40sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/graph" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
