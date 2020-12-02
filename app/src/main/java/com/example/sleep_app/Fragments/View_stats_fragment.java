@@ -145,7 +145,7 @@ public class View_stats_fragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
         int sleep_id = dbHandler.GetLastSleepId();
-        //sleep_id=3; //Voor tests
+        //int sleep_id=3; //Voor tests
         ShowNightGraph(sleep_id, dbHandler);
         Button moreInfo = view.findViewById(R.id.buttonMoreInfo);
         moreInfo.setOnClickListener(new View.OnClickListener() {
@@ -162,16 +162,12 @@ public class View_stats_fragment extends Fragment {
         graph.removeAllSeries();
         // activate horizontal zooming and scrolling
         graph.getViewport().setScalable(true);
-
         // activate horizontal scrolling
         graph.getViewport().setScrollable(true);
-
         // activate horizontal and vertical zooming and scrolling
         graph.getViewport().setScalableY(true);
-
         // activate vertical scrolling
         graph.getViewport().setScrollableY(true);
-
         DataPoint[] value_time_pairs = dbHandler.getSleepData(sleep_id);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(
                 value_time_pairs
