@@ -1,4 +1,5 @@
 package com.example.sleep_app;
+import android.app.Notification;
 import android.os.Build;
 import android.util.Log;
 
@@ -16,6 +17,7 @@ public class Measurement {
     List<Double>  ValueList = new ArrayList<Double>();
     String Timestamp = null;
     Double Value = 0.0;
+    private int ActivityCount = 0;
     ReentrantLock lock = new ReentrantLock();
 
     public Measurement(int measurementID, int sleepID, String timestamp) {
@@ -55,6 +57,10 @@ public class Measurement {
         }
     }
 
+    public void IncrementActivityCounter(){
+        this.ActivityCount++;
+    }
+
     public int getMeasurementID() {
         return MeasurementID;
     }
@@ -74,6 +80,8 @@ public class Measurement {
     public double getValue() {
         return Value;
     }
+
+    public int getActivityCount(){return ActivityCount;}
 
     public void setValue(double value) {
         Value = value;

@@ -32,6 +32,9 @@ public class SleepService extends Service implements SensorEventListener {
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     public static final String CHANNEL_ID = "channelId1";
     private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
+    private static double ACTIVITY_THRESHOLD = 0.2;
+
+    private static int READINGRATE = 20000; // time in us
 
     SensorManager sensorManager;
     Sensor sensor;
@@ -65,7 +68,7 @@ public class SleepService extends Service implements SensorEventListener {
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Sleep app")
-                .setContentText("Slaap wordt momenteel gemeten, alarm gaat af om " + timer[0] + ":" + timer[1] + ".")
+                .setContentText("Slaap wordt gemeten, alarm gaat af om " + timer[0] + ":" + timer[1] + ".")
                 .setSmallIcon(R.drawable.set_alarm_icon)
                 .setContentIntent(pendingIntent)
                 .build();
@@ -85,7 +88,7 @@ public class SleepService extends Service implements SensorEventListener {
     }
 
     public void createTask(){
-        //Om de 5 min wordt een gemiddelde van de metingen genomen.
+        //Om de 1 min wordt een gemiddelde van de metingen genomen.
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
@@ -140,7 +143,7 @@ public class SleepService extends Service implements SensorEventListener {
         }
 
         measurement = new Measurement(-1, activityId, time);
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensor, READINGRATE); //50Hz
     }
 
    @Override
@@ -153,6 +156,9 @@ public class SleepService extends Service implements SensorEventListener {
            //double value = Math.max(Math.abs(event.values[0]), Math.max(Math.abs(event.values[1]), Math.abs(event.values[2])));
            Log.d("SENSOR Value", "onSensorChanged: value to db = " + value  );
            this.measurement.AddMeasurement(value);
+           if (value >= ACTIVITY_THRESHOLD){
+               this.measurement.IncrementActivityCounter();
+           }
            intent1.putExtra("DATAPASSED", value);
            sendBroadcast(intent1);
        }

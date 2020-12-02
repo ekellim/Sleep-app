@@ -22,6 +22,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     private static final String TABLE1 = "Activities";   // Table Name
     private static final int DATABASE_Version = 1;    // Database Version
     private static final String SLEEP_ID="Sleep_id";     // Column I (Primary Key)
+    private static final String ACTIVITY_COUNT="Activity_Count";
     public static final String START = "Start";
     public static final String STOP = "Stop";
     private static final String TABLE2 = "Measurements";   // Table Name
@@ -41,7 +42,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
         try {
             String CREATE_TABLE1 = "CREATE TABLE IF NOT EXISTS " + TABLE1 + " ( " + SLEEP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + START + " VARCHAR(30), " + STOP + " VARCHAR(30));";
             db.execSQL(CREATE_TABLE1);
-            String CREATE_TABLE2 = "CREATE TABLE IF NOT EXISTS " + TABLE2 + " ( " + MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIMESTAMP + " VARCHAR(30)," + VALUE + " REAL," + SLEEP_ID + " integer, FOREIGN KEY (" + SLEEP_ID + ") REFERENCES " + TABLE1 + "(" + SLEEP_ID + "));";
+            String CREATE_TABLE2 = "CREATE TABLE IF NOT EXISTS " + TABLE2 + " ( " + MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIMESTAMP + " VARCHAR(30)," + VALUE + " REAL," + ACTIVITY_COUNT + " integer, " + SLEEP_ID + " integer, FOREIGN KEY (" + SLEEP_ID + ") REFERENCES " + TABLE1 + "(" + SLEEP_ID + "));";
             //String CREATE_TABLE2 = "CREATE TABLE IF NOT EXISTS " + TABLE2 + " ( " + MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIMESTAMP + " VARCHAR(30)," + VALUE + "REAL);";
             db.execSQL(CREATE_TABLE2);
         } catch (Exception e){
@@ -73,6 +74,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
         values.put(TIMESTAMP, measurement.getTimestamp());
         values.put(VALUE, measurement.getValue());
         values.put(SLEEP_ID, measurement.getSleepID());
+        values.put(ACTIVITY_COUNT, measurement.getActivityCount());
         db.insert(TABLE2, null, values);
         db.close();
     }
@@ -122,6 +124,37 @@ public class MyDBHandler extends SQLiteOpenHelper {
             i++;
         }
         return value_time_pairs;
+    }
+
+    public int[] getActivityCounts(int sleep_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String qry = "SELECT Activity_count FROM " + TABLE2+ " WHERE Sleep_id is " + sleep_id;
+        Cursor cursor = db.rawQuery(qry, null);
+        int[] counts = new int[cursor.getCount()] ;
+        int i = 0;
+        while (cursor.moveToNext()){
+            counts[i] = cursor.getInt(0);
+            i++;
+        }
+        return counts;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public double[] getTimestamps(int sleep_id){
+        SQLiteDatabase db = this.getReadableDatabase();
+        String qry = "SELECT Timestamp FROM " + TABLE2+ " WHERE Sleep_id is " + sleep_id;
+        Cursor cursor = db.rawQuery(qry, null);
+        double[] times = new double[cursor.getCount()] ;
+        int i = 0;
+        while (cursor.moveToNext()){
+            String timestamp = cursor.getString(0);
+            DateTimeFormatter f = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
+            LocalDateTime dateTime = LocalDateTime.from(f.parse(timestamp));
+            double time_of_day;
+            times[i] = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            i++;
+        }
+        return times;
     }
 
     public void UpdateStopTime(int sleep_id, String stop_time){

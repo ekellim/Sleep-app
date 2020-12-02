@@ -78,7 +78,7 @@ public class MeasureActivity extends AppCompatActivity {
             stopService(intentService);
         }
         catch (Exception e){
-            Log.e("STOP MEASUREMENT", "stopMeasurement: service couldn't be stoped or has already stoped: " + e);
+            Log.e("STOP MEASUREMENT", "stopMeasurement: service couldn't be stopped or has already stopped: " + e);
         }
         //Navigation.findNavController(v).navigate(R.id.action_nav_first_fragment_to_nav_second_fragment);
         finish();
