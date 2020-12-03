@@ -56,7 +56,7 @@ public class MeasureActivity extends AppCompatActivity {
         values = intent.getStringArrayExtra(MainActivity.TIMER);
         measurement = new Measurement(-1, activityId, time);
 
-        String clock = intent.getStringExtra(MainActivity.TIMER);
+        //String clock = intent.getStringExtra(MainActivity.TIMER);
         alarm = findViewById(R.id.alarm);
         alarm.setText(values[0]+":"+values[1]);
 
@@ -69,6 +69,7 @@ public class MeasureActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void stopMeasurement(View v) throws InterruptedException {
+        Log.d("STOP_MEASUREMENT", "Measureactivity is stopping measurement via stopMeasurement.");
         Intent intentService = new Intent(this, SleepService.class);
         intentService.putExtra(Intent.EXTRA_TEXT, getCurrentTime());
         setResult(RESULT_OK, intentService);

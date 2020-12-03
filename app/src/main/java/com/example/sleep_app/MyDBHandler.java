@@ -22,7 +22,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     private static final String TABLE1 = "Activities";   // Table Name
     private static final int DATABASE_Version = 1;    // Database Version
     private static final String SLEEP_ID="Sleep_id";     // Column I (Primary Key)
-    private static final String ACTIVITY_COUNT="Activity_Count";
+    private static final String ACTIVITY_COUNT="Activity_count";
     public static final String START = "Start";
     public static final String STOP = "Stop";
     private static final String TABLE2 = "Measurements";   // Table Name
@@ -41,8 +41,10 @@ public class MyDBHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         try {
             String CREATE_TABLE1 = "CREATE TABLE IF NOT EXISTS " + TABLE1 + " ( " + SLEEP_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + START + " VARCHAR(30), " + STOP + " VARCHAR(30));";
+            Log.d("CREATE TABLE", String.format("Creating table with next querry : {}", CREATE_TABLE1));
             db.execSQL(CREATE_TABLE1);
             String CREATE_TABLE2 = "CREATE TABLE IF NOT EXISTS " + TABLE2 + " ( " + MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIMESTAMP + " VARCHAR(30)," + VALUE + " REAL," + ACTIVITY_COUNT + " integer, " + SLEEP_ID + " integer, FOREIGN KEY (" + SLEEP_ID + ") REFERENCES " + TABLE1 + "(" + SLEEP_ID + "));";
+            Log.d("CREATE TABLE", String.format("Creating table with next querry : {}", CREATE_TABLE2));
             //String CREATE_TABLE2 = "CREATE TABLE IF NOT EXISTS " + TABLE2 + " ( " + MEASUREMENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + TIMESTAMP + " VARCHAR(30)," + VALUE + "REAL);";
             db.execSQL(CREATE_TABLE2);
         } catch (Exception e){

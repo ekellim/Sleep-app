@@ -43,6 +43,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static java.lang.Integer.parseInt;
+
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
@@ -174,9 +176,10 @@ public class Set_alarm extends Fragment {
                 if(!startButton.isActivated()){
                     Snackbar.make(view, "You have to set an alarm first", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                     return;
+                } else {
+                    startSleepMeasure(v);
+                    //testService(v);
                 }
-                startSleepMeasure(v);
-                //testService(v);
             }
         });
 
@@ -200,6 +203,8 @@ public class Set_alarm extends Fragment {
         intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
         startActivity(intent);
     }
+
+
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void testService(View v){
@@ -225,6 +230,8 @@ public class Set_alarm extends Fragment {
         getActivity().startService(intent);
     }
 
+
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void startSleepMeasure(View view){
         createNotification();
@@ -241,11 +248,31 @@ public class Set_alarm extends Fragment {
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
         dbHandler.addActivityHandler(activity);
         int activityId = dbHandler.GetLastSleepId();
-        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute())};
+        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute()), getDay()};
 
         intent.putExtra(TIMER, values);
         intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
         startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public String getDay(){
+        String day = "";
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
+        LocalDateTime now = LocalDateTime.now();
+        String dateTime = dtf.format(now);
+        if(parseInt(dateTime.split(":")[0]) >= timePicker.getHour()) {
+            if (parseInt(dateTime.split(":")[1]) >= timePicker.getMinute()) {
+                int d = parseInt(dateTime.split("-")[1].split("/")[0])+1;
+                int m = parseInt(dateTime.split("-")[1].split("/")[1]);
+                int y = parseInt(dateTime.split("-")[1].split("/")[2]);
+                day = d+"/"+m+"/"+y;
+            }
+        }
+        else{
+            day = dateTime.split("-")[1];
+        }
+        return day;
     }
 
     public void createNotification(){

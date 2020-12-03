@@ -61,7 +61,8 @@ public class SleepService extends Service implements SensorEventListener {
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        //sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, sensor, READINGRATE); //50Hz
 
         Intent notificationIntent = new Intent(this, MeasureActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -76,13 +77,13 @@ public class SleepService extends Service implements SensorEventListener {
         notificationIntent.putExtra(TIMER, timer);
         notificationIntent.putExtra(ACTIVITY_ID, activityId);
 
-        createTask();
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("com.example.sleepapp.UNREGISTER");
         registerReceiver(receiver, intentFilter);
 
+        createTask();
         startForeground(1, notification);
+
 
         return START_REDELIVER_INTENT;
     }
@@ -93,7 +94,7 @@ public class SleepService extends Service implements SensorEventListener {
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
         long delay = 1*60*1000;
-
+        //long delay = 10*1000; //for testing
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -134,16 +135,20 @@ public class SleepService extends Service implements SensorEventListener {
 
         String time = getCurrentTime();
         String timesplit[] = time.split(":");
-
-        if(parseInt(timesplit[0]) >= parseInt(timer[0])){
-            if(parseInt(timesplit[1]) >= parseInt(timer[1])){
-                sensorManager.unregisterListener(this, sensor);
-                stopSelf();
+        Log.d("TIMER", "current time = "+time+" vs set time "+timer[0]+":"+timer[1]+"-"+timer[2]);
+        if(time.split("-")[1] == timer[2]) {
+            if (parseInt(timesplit[0]) >= parseInt(timer[0])) {
+                if (parseInt(timesplit[1]) >= parseInt(timer[1])) {
+                    Log.d("TIMER EXPIRED", "Timer expired, service shutting down");
+                    sensorManager.unregisterListener(this, sensor);
+                    unregisterReceiver(receiver);
+                    stopSelf();
+                }
             }
         }
-
         measurement = new Measurement(-1, activityId, time);
         sensorManager.registerListener(this, sensor, READINGRATE); //50Hz
+        //sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
    @Override
@@ -169,9 +174,9 @@ public class SleepService extends Service implements SensorEventListener {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
             Log.i("Boadcast receiver", "Receiver has received! items wil be unregistred.");
             unregister();
+            stopSelf();
         }
     };
 
@@ -185,13 +190,14 @@ public class SleepService extends Service implements SensorEventListener {
 
     @Override
     public void onDestroy(){
+        Log.d("OnDestroy", "service wordt afgesloten via destroy");
+        /*
         try{
             sensorManager.unregisterListener(this, sensor);
-            unregisterReceiver(receiver);
         } catch (Exception e){
             Log.d("OnDestroy", "Error on destroy : " + e.toString());
         }
-
+*/
         super.onDestroy();
     }
 
