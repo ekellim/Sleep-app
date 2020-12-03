@@ -93,8 +93,8 @@ public class SleepService extends Service implements SensorEventListener {
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
-        long delay = 1*60*1000;
-        //long delay = 10*1000; //for testing
+        //long delay = 1*60*1000;
+        long delay = 10*1000; //for testing
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override

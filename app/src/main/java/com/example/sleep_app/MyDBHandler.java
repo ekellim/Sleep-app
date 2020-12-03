@@ -62,7 +62,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
 
     //Class Activity vervangen door Sleep, android studio heeft reeds een klasse Activity, voorkomt ook verwarring
     public void addActivityHandler(Sleep sleep) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(START, sleep.getStart());
         values.put(STOP, sleep.getStop());
@@ -71,7 +71,7 @@ public class MyDBHandler extends SQLiteOpenHelper {
     }
 
     public void addMeasurementHandler(Measurement measurement) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(TIMESTAMP, measurement.getTimestamp());
         values.put(VALUE, measurement.getValue());
@@ -105,6 +105,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
         while (cursor.moveToNext()){
             id = cursor.getInt(0);
         }
+        cursor.close();
+        db.close();
         return id;
     }
 
@@ -125,6 +127,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
             value_time_pairs[i] = new DataPoint(time_of_day, cursor.getFloat(0));
             i++;
         }
+        cursor.close();
+        db.close();
         return value_time_pairs;
     }
 
@@ -138,6 +142,8 @@ public class MyDBHandler extends SQLiteOpenHelper {
             counts[i] = cursor.getInt(0);
             i++;
         }
+        cursor.close();
+        db.close();
         return counts;
     }
 
@@ -156,7 +162,27 @@ public class MyDBHandler extends SQLiteOpenHelper {
             times[i] = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             i++;
         }
+        cursor.close();
+        db.close();
         return times;
+    }
+
+    public Sleep getSleep(int sleep_id){
+        Sleep sleep = new Sleep();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String qry = "SELECT "+START+","+STOP+" FROM " + TABLE1+ " WHERE Sleep_id is " + sleep_id;
+        Log.d("GET SLEEPINFO", "query: "+qry);
+        Cursor cursor = db.rawQuery(qry, null);
+        Log.d("GET SLEEPINFO", "querysize: "+cursor.getCount());
+        while (cursor.moveToNext()) {
+            Log.d("GET SLEEPINFO", "content of query: " + cursor.getString(0));
+            Log.d("GET SLEEPINFO", "content of query: " + cursor.getString(1));
+            sleep.start = cursor.getString(0);
+            sleep.stop = cursor.getString(1);
+        }
+        cursor.close();
+        db.close();
+        return sleep;
     }
 
     public void UpdateStopTime(int sleep_id, String stop_time){

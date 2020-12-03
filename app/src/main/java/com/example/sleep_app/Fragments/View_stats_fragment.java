@@ -27,7 +27,9 @@ import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,6 +51,7 @@ public class View_stats_fragment extends Fragment {
     private AlertDialog.Builder dialogBuilder;
     private AlertDialog dialog;
     private Button buttonClose;
+    private int Sleep_id;
 
     public View_stats_fragment() {
         // Required empty public constructor
@@ -121,7 +124,7 @@ public class View_stats_fragment extends Fragment {
             });
 
             Button deleteButton = new Button(getActivity());
-            deleteButton.setText("X");
+            deleteButton.setText("DELETE");
             deleteButton.setId(10000 + (i-1));
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v){
@@ -138,8 +141,11 @@ public class View_stats_fragment extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT));
 
             ((LinearLayout) linearLayout).addView(test);
-            ((LinearLayout) linearLayout).addView(btn);
-            ((LinearLayout) linearLayout).addView(deleteButton);
+            LinearLayout row = new LinearLayout(getActivity());
+            row.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+            row.addView(btn);
+            row.addView(deleteButton);
+            ((LinearLayout) linearLayout).addView(row);
             ((LinearLayout) linearLayout).addView(divider);
         }
         return v;
@@ -155,13 +161,18 @@ public class View_stats_fragment extends Fragment {
         moreInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                moreInfoDialog(v);
+                try {
+                    moreInfoDialog(v);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void ShowNightGraph(int sleep_id, MyDBHandler dbHandler){
+        Sleep_id = sleep_id;
         /*GraphView graph = (GraphView) getView().findViewById(R.id.graph);
         graph.removeAllSeries();
         // activate horizontal zooming and scrolling
@@ -252,10 +263,17 @@ public class View_stats_fragment extends Fragment {
 
     }
 
-    public void moreInfoDialog(View view){
+    public void moreInfoDialog(View view) throws ParseException {
         dialogBuilder = new AlertDialog.Builder(getActivity());
         final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
         buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+
+        TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
+        MyDBHandler db = new MyDBHandler(getActivity());
+
+        Sleep sleep = db.getSleep(Sleep_id);
+        String total = getTotalSleep(sleep);
+        text.setText("\t\t\tSLEEP \n \t\t\tStart: "+sleep.getStart()+"\n \t\t\tStop: "+sleep.getStop()+"\n \t\t\tTotal sleep: "+total);
 
         dialogBuilder.setView(moreInfoPopupView);
         dialog = dialogBuilder.create();
@@ -267,6 +285,21 @@ public class View_stats_fragment extends Fragment {
                 dialog.dismiss();
             }
         });
+    }
+
+    public String getTotalSleep(Sleep sleep) throws ParseException {
+        Date start = null;
+        Date stop = null;
+        try {
+            Log.d("GET START", "start and stop time = " +sleep.getStart() +" and "+sleep.getStop());
+            start = new SimpleDateFormat("HH:mm:ss-dd/MM/yyyy").parse(sleep.getStart());
+            stop = new SimpleDateFormat("HH:mm:ss-dd/MM/yyyy").parse(sleep.getStop());
+        } catch (Exception e){
+            Log.d("ERROR get total sleep","error: "+e.toString());
+        }
+        long total = stop.getTime() - start.getTime();
+
+        return Long.toString(total);
     }
 
 }
