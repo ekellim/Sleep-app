@@ -8,6 +8,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Build;
@@ -21,6 +22,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -63,7 +66,9 @@ public class Set_alarm extends Fragment {
     TimePicker timePicker;
     TimePicker.OnTimeChangedListener setTime;
     MyDBHandler db;
+    Button setAlarmButton;
     Button startButton;
+    Boolean switchState = false;
 
     /**
      * Whether or not the system UI should be auto-hidden after
@@ -159,6 +164,15 @@ public class Set_alarm extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mVisible = true;
 
+        Switch switch1 = view.findViewById(R.id.switch1);
+        switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                switchState = isChecked;
+                switchChanged();
+            }
+        });
+
         final TextView title = view.findViewById(R.id.title);
         title.setText("Set your alarm clock");
         timePicker = view.findViewById(R.id.timePicker);
@@ -167,7 +181,6 @@ public class Set_alarm extends Fragment {
         sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         //db = new MyDBHandler();
         startButton = (Button) view.findViewById(R.id.start_button);
-        startButton.setActivated(false);
         startButton.setOnClickListener(new View.OnClickListener() {
 
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -178,12 +191,11 @@ public class Set_alarm extends Fragment {
                     return;
                 } else {
                     startSleepMeasure(v);
-                    //testService(v);
                 }
             }
         });
 
-        Button setAlarmButton = view.findViewById(R.id.setAlarm_button);
+        setAlarmButton = view.findViewById(R.id.setAlarm_button);
         setAlarmButton.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
@@ -191,6 +203,7 @@ public class Set_alarm extends Fragment {
                 setAlarm(v);
             }
         });
+        switchChanged();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -198,36 +211,25 @@ public class Set_alarm extends Fragment {
         Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM);
 
         startButton.setActivated(true);
+        startButton.setTextColor(Color.WHITE);
 
         intent.putExtra(AlarmClock.EXTRA_HOUR, timePicker.getHour());
         intent.putExtra(AlarmClock.EXTRA_MINUTES, timePicker.getMinute());
         startActivity(intent);
     }
 
-
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void testService(View v){
-        Intent intent = new Intent(getActivity(), SleepService.class);
-        Sleep activity;
-
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
-        LocalDateTime now = LocalDateTime.now();
-        try {
-            activity = new Sleep(-1, dtf.format(now), "null");
-        } catch (Exception e){
-            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
-            activity = new Sleep(-1, "error", "error");
+    public void switchChanged(){
+        if(switchState){
+            timePicker.setEnabled(true);
+            setAlarmButton.setEnabled(true);
+            startButton.setActivated(false);
+            startButton.setTextColor(Color.GRAY);
+        } else {
+            timePicker.setEnabled(false);
+            setAlarmButton.setEnabled(false);
+            startButton.setActivated(true);
+            startButton.setTextColor(Color.WHITE);
         }
-        MyDBHandler dbHandler = new MyDBHandler(getActivity());
-        dbHandler.addActivityHandler(activity);
-        int activityId = dbHandler.GetLastSleepId();
-        //values = String.format("%s:%s",timePicker.getHour(),timePicker.getMinute());
-        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute())};
-
-        intent.putExtra(TIMER, values);
-        intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
-        getActivity().startService(intent);
     }
 
 
@@ -239,8 +241,9 @@ public class Set_alarm extends Fragment {
         Intent intent = new Intent(getActivity(), MeasureActivity.class);
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss-dd/MM/yy");
         LocalDateTime now = LocalDateTime.now();
+        String dateTime = dtf.format(now);
         try {
-            activity = new Sleep(-1, dtf.format(now), "null");
+            activity = new Sleep(-1, dateTime, "null");
         } catch (Exception e){
             Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
             activity = new Sleep(-1, "error", "error");
@@ -248,8 +251,11 @@ public class Set_alarm extends Fragment {
         MyDBHandler dbHandler = new MyDBHandler(getActivity());
         dbHandler.addActivityHandler(activity);
         int activityId = dbHandler.GetLastSleepId();
-        values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute()), getDay()};
-
+        if(switchState) {
+            values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute()), getDay()};
+        } else{
+            values = new String[]{Integer.toString(parseInt(dateTime.split("-")[0].split(":")[0])+12), dateTime.split("-")[0].split(":")[1], getDay()};
+        }
         intent.putExtra(TIMER, values);
         intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
         startActivityForResult(intent, SECOND_ACTIVITY_REQUEST_CODE);

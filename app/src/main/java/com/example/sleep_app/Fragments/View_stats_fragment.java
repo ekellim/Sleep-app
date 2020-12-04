@@ -30,6 +30,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -273,7 +274,7 @@ public class View_stats_fragment extends Fragment {
 
         Sleep sleep = db.getSleep(Sleep_id);
         String total = getTotalSleep(sleep);
-        text.setText("\t\t\tSLEEP \n \t\t\tStart: "+sleep.getStart()+"\n \t\t\tStop: "+sleep.getStop()+"\n \t\t\tTotal sleep: "+total);
+        text.setText("\t\t\tSleep overview of "+sleep.getStart().split("-")[1]+" \n\n \t\t\tStart: "+sleep.getStart().split("-")[0]+"\n \t\t\tStop: "+sleep.getStop().split("-")[0]+"\n\n \t\t\tTotal sleep duration: "+total);
 
         dialogBuilder.setView(moreInfoPopupView);
         dialog = dialogBuilder.create();
@@ -298,8 +299,11 @@ public class View_stats_fragment extends Fragment {
             Log.d("ERROR get total sleep","error: "+e.toString());
         }
         long total = stop.getTime() - start.getTime();
-
-        return Long.toString(total);
+        String timeFormat = String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toHours(total),
+                TimeUnit.MILLISECONDS.toMinutes(total) -
+                        TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(total)));
+        return timeFormat;
     }
 
 }
