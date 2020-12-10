@@ -130,9 +130,13 @@ public class View_stats_fragment extends Fragment {
             deleteButton.setId(10000 + (i-1));
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v){
-                    dbHandler.deleteSleep(sleep_id);
-                    linearLayout.postInvalidate();
-                    getActivity().recreate();
+                    try{
+                        deleteDialog(v, sleep_id, dbHandler, linearLayout);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+
                 }
             });
 
@@ -285,6 +289,29 @@ public class View_stats_fragment extends Fragment {
         buttonClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void deleteDialog(View view, int sleep_id, MyDBHandler dbHandler, LinearLayout linearLayout) throws ParseException {
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+
+        TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
+        text.setText("\t\t\tDelete this night?");
+
+        dialogBuilder.setView(moreInfoPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        buttonClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dbHandler.deleteSleep(sleep_id);
+                linearLayout.postInvalidate();
+                getActivity().recreate();
                 dialog.dismiss();
             }
         });
