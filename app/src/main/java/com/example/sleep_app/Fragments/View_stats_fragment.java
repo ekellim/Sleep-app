@@ -328,6 +328,29 @@ public class View_stats_fragment extends Fragment {
         });
     }
 
+    public void deleteDialog(View view, int sleep_id, MyDBHandler dbHandler, LinearLayout linearLayout) throws ParseException {
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
+        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+
+        TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
+        text.setText("\t\t\tDelete this night?");
+
+        dialogBuilder.setView(moreInfoPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        buttonClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dbHandler.deleteSleep(sleep_id);
+                linearLayout.postInvalidate();
+                getActivity().recreate();
+                dialog.dismiss();
+            }
+        });
+    }
+
     public String getTotalSleep(Sleep sleep) throws ParseException {
         Date start = null;
         Date stop = null;
