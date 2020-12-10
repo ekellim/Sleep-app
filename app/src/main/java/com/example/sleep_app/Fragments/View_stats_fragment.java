@@ -23,10 +23,8 @@ import com.example.sleep_app.Sleep;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,6 +52,10 @@ public class View_stats_fragment extends Fragment {
     private AlertDialog dialog;
     private Button buttonClose;
     private int Sleep_id;
+
+    //deleteDialog variables
+    private Button buttonDelete;
+    private Button buttonCancel;
 
     public View_stats_fragment() {
         // Required empty public constructor
@@ -130,9 +132,12 @@ public class View_stats_fragment extends Fragment {
             deleteButton.setId(10000 + (i-1));
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v){
-                    dbHandler.deleteSleep(sleep_id);
+                    try {
+                        deleteDialog(v, sleep_id);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                     linearLayout.postInvalidate();
-                    getActivity().recreate();
                 }
             });
 
@@ -153,6 +158,7 @@ public class View_stats_fragment extends Fragment {
         }
         return v;
     }
+
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
@@ -262,21 +268,53 @@ public class View_stats_fragment extends Fragment {
             Log.d("Barview", "Night too short");
             Toast.makeText(getActivity(), "Night too short", Toast.LENGTH_SHORT).show();
         }
+    }
 
+    public void deleteDialog(View view, int sleep_id) throws ParseException {
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.delete_dialog, null);
+        buttonCancel = (Button) moreInfoPopupView.findViewById(R.id.buttonCancel);
+        buttonDelete = (Button) moreInfoPopupView.findViewById(R.id.buttonDelete);
 
+        TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
+        text.setText("\tAre you sure you want to delete this \n sleep activity?");
+        MyDBHandler db = new MyDBHandler(getActivity());
+
+        dialogBuilder.setView(moreInfoPopupView);
+        dialog = dialogBuilder.create();
+        dialog.show();
+
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        buttonDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db.deleteSleep(sleep_id);
+                getActivity().recreate();
+                dialog.dismiss();
+            }
+        });
     }
 
     public void moreInfoDialog(View view) throws ParseException {
         dialogBuilder = new AlertDialog.Builder(getActivity());
         final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
-        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonCancel);
 
         TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
         MyDBHandler db = new MyDBHandler(getActivity());
 
         Sleep sleep = db.getSleep(Sleep_id);
         String total = getTotalSleep(sleep);
-        text.setText("\t\t\tSleep overview of "+sleep.getStart().split("-")[1]+" \n\n \t\t\tStart: "+sleep.getStart().split("-")[0]+"\n \t\t\tStop: "+sleep.getStop().split("-")[0]+"\n\n \t\t\tTotal sleep duration: "+total);
+        if(total == "ERROR"){
+            text.setText("\\t\\t\\tSleep overview of \"+sleep.getStart().split(\"-\")[1]+\" \\n\\n \t\t\t There was error retrieving your sleepdata,\n \t\t\t something went wrong.");
+        } else{
+            text.setText("\t\t\tSleep overview of "+sleep.getStart().split("-")[1]+" \n\n \t\t\tStart: "+sleep.getStart().split("-")[0]+"\n \t\t\tStop: "+sleep.getStop().split("-")[0]+"\n\n \t\t\tTotal sleep duration: "+total);
+        }
 
         dialogBuilder.setView(moreInfoPopupView);
         dialog = dialogBuilder.create();
@@ -299,6 +337,7 @@ public class View_stats_fragment extends Fragment {
             stop = new SimpleDateFormat("HH:mm:ss-dd/MM/yyyy").parse(sleep.getStop());
         } catch (Exception e){
             Log.d("ERROR get total sleep","error: "+e.toString());
+            return "ERROR";
         }
         long total = stop.getTime() - start.getTime();
         String timeFormat = String.format("%02d:%02d",
