@@ -254,7 +254,7 @@ public class Set_alarm extends Fragment {
         if(switchState) {
             values = new String[]{Integer.toString(timePicker.getHour()), Integer.toString(timePicker.getMinute()), getDay()};
         } else{
-            values = new String[]{Integer.toString(parseInt(dateTime.split("-")[0].split(":")[0])+12), dateTime.split("-")[0].split(":")[1], getDay()};
+            values = new String[]{Integer.toString(parseInt(dateTime.split("-")[0].split(":")[0])+25), dateTime.split("-")[0].split(":")[1], getDay()};
         }
         intent.putExtra(TIMER, values);
         intent.putExtra(ACTIVITY_ID, Integer.toString(activityId));
@@ -308,7 +308,7 @@ public class Set_alarm extends Fragment {
     public void onResume() {
         super.onResume();
         if (getActivity() != null && getActivity().getWindow() != null) {
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS | WindowManager.LayoutParams.FLAG_FULLSCREEN | WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
         // Trigger the initial hide() shortly after the activity has been

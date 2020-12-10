@@ -3,6 +3,7 @@ package com.example.sleep_app;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,6 +22,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,6 +32,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Integer.valueOf;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,6 +42,7 @@ public class MeasureActivity extends AppCompatActivity {
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     TextView textView;
     TextView alarm;
+    TextView measureText;
     Measurement measurement;
     int activityId;
     String values[];
@@ -47,6 +51,14 @@ public class MeasureActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MeasureActivity.this);
+        String deftheme = sharedPreferences.getString("mode", "light");
+        if (deftheme.equals("night")){
+            setTheme(R.style.NightTheme);
+        }
+        else if (deftheme.equals("light")){
+            setTheme(R.style.AppTheme);
+        }
         setContentView(R.layout.activity_running);
         Intent intent = getIntent();
         textView = findViewById(R.id.measureResults);
@@ -58,7 +70,14 @@ public class MeasureActivity extends AppCompatActivity {
 
         //String clock = intent.getStringExtra(MainActivity.TIMER);
         alarm = findViewById(R.id.alarm);
-        alarm.setText(values[0]+":"+values[1]);
+        measureText = findViewById(R.id.measureResults);
+        alarm.setText("Good night!");
+        if (valueOf(values[0])>24){
+            measureText.setText("No alarm set");
+        }
+        else{
+            measureText.setText("Alarm: "+String.format("%02d", valueOf(values[0]))+"h"+String.format("%02d", valueOf(values[1])));
+        }
 
         Intent intentService = new Intent(this, SleepService.class);
         intentService.putExtra(TIMER, values);

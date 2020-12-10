@@ -26,13 +26,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Timer;
 
 import static java.lang.Integer.parseInt;
+import static java.lang.Integer.valueOf;
 
 public class SleepService extends Service implements SensorEventListener {
     public static final String TIMER = "com.example.myfirstapp.MESSAGE";
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     public static final String CHANNEL_ID = "channelId1";
     private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
-    private static double ACTIVITY_THRESHOLD = 0.2;
+    private static double ACTIVITY_THRESHOLD = 0.1;
 
     private static int READINGRATE = 20000; // time in us
 
@@ -74,6 +75,17 @@ public class SleepService extends Service implements SensorEventListener {
                 .setContentIntent(pendingIntent)
                 .build();
 
+        if (valueOf(timer[0])>24){
+            notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("Sleep app")
+                    .setContentText("Slaap wordt gemeten, geen alarm gezet.")
+                    .setSmallIcon(R.drawable.set_alarm_icon)
+                    .setContentIntent(pendingIntent)
+                    .build();
+            timer[0] = Integer.toString(valueOf(timer[0]) - 13);
+        }
+
+
         notificationIntent.putExtra(TIMER, timer);
         notificationIntent.putExtra(ACTIVITY_ID, activityId);
 
@@ -93,8 +105,8 @@ public class SleepService extends Service implements SensorEventListener {
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
-        //long delay = 1*60*1000;
-        long delay = 10*1000; //for testing
+        long delay = 1*60*1000;
+        //long delay = 10*1000; //for testing
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override

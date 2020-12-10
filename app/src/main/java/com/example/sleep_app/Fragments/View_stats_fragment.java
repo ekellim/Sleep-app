@@ -23,6 +23,7 @@ import com.example.sleep_app.Sleep;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -131,6 +132,7 @@ public class View_stats_fragment extends Fragment {
                 public void onClick(View v){
                     dbHandler.deleteSleep(sleep_id);
                     linearLayout.postInvalidate();
+                    getActivity().recreate();
                 }
             });
 
