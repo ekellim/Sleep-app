@@ -277,7 +277,7 @@ public class View_stats_fragment extends Fragment {
         buttonDelete = (Button) moreInfoPopupView.findViewById(R.id.buttonDelete);
 
         TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
-        text.setText("\tAre you sure you want to delete this \n sleep activity?");
+        text.setText("\tAre you sure you want to delete \nthis sleep activity?");
         MyDBHandler db = new MyDBHandler(getActivity());
 
         dialogBuilder.setView(moreInfoPopupView);
@@ -331,7 +331,7 @@ public class View_stats_fragment extends Fragment {
     public void deleteDialog(View view, int sleep_id, MyDBHandler dbHandler, LinearLayout linearLayout) throws ParseException {
         dialogBuilder = new AlertDialog.Builder(getActivity());
         final View moreInfoPopupView = getLayoutInflater().inflate(R.layout.popup, null);
-        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonClose);
+        buttonClose = (Button) moreInfoPopupView.findViewById(R.id.buttonCancel);
 
         TextView text = (TextView) moreInfoPopupView.findViewById(R.id.textView2);
         text.setText("\t\t\tDelete this night?");

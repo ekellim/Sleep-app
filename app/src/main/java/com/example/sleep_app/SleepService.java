@@ -16,6 +16,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.app.PendingIntent;
+import android.os.Looper;
+import android.os.PowerManager;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -33,9 +35,12 @@ public class SleepService extends Service implements SensorEventListener {
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     public static final String CHANNEL_ID = "channelId1";
     private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
-    private static double ACTIVITY_THRESHOLD = 0.1;
+    private static double ACTIVITY_THRESHOLD = 0.06;
 
     private static int READINGRATE = 20000; // time in us
+
+    PowerManager pm;
+    PowerManager.WakeLock wl;
 
     SensorManager sensorManager;
     Sensor sensor;
@@ -48,6 +53,9 @@ public class SleepService extends Service implements SensorEventListener {
     @Override
     public void onCreate(){
         super.onCreate();
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sleepapp:wakelocktag");
+        wl.acquire();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -83,6 +91,9 @@ public class SleepService extends Service implements SensorEventListener {
                     .setContentIntent(pendingIntent)
                     .build();
             timer[0] = Integer.toString(valueOf(timer[0]) - 13);
+            if (valueOf(timer[0])>23){
+                timer[0] = Integer.toString(valueOf(timer[0]) - 12);
+            }
         }
 
 
@@ -105,8 +116,8 @@ public class SleepService extends Service implements SensorEventListener {
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
-        long delay = 1*60*1000;
-        //long delay = 10*1000; //for testing
+        //long delay = 60*1000;
+        long delay = 10*1000; //for testing
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
@@ -147,6 +158,9 @@ public class SleepService extends Service implements SensorEventListener {
 
         String time = getCurrentTime();
         String timesplit[] = time.split(":");
+        if (valueOf(timer[0])>23){
+            timer[0] = timer[0] = Integer.toString(valueOf(timer[0]) - 12);
+        }
         Log.d("TIMER", "current time = "+time+" vs set time "+timer[0]+":"+timer[1]+"-"+timer[2]);
         if(time.split("-")[1] == timer[2]) {
             if (parseInt(timesplit[0]) >= parseInt(timer[0])) {
@@ -211,6 +225,7 @@ public class SleepService extends Service implements SensorEventListener {
         }
 */
         super.onDestroy();
+        wl.release();
     }
 
     @Override
