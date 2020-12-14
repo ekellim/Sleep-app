@@ -35,7 +35,7 @@ public class SleepService extends Service implements SensorEventListener {
     public static final String ACTIVITY_ID = "com.example.myfirstapp.ACTIVITY_ID";
     public static final String CHANNEL_ID = "channelId1";
     private static final int SECOND_ACTIVITY_REQUEST_CODE = 0;
-    private static double ACTIVITY_THRESHOLD = 0.06;
+    private static double ACTIVITY_THRESHOLD = 0.1;
 
     private static int READINGRATE = 20000; // time in us
 
@@ -116,8 +116,8 @@ public class SleepService extends Service implements SensorEventListener {
         //Dan wordt deze waarde in de db opgeslagen en een nieuwe meting gestart.
         //Dit gebeurd met deze TimerTask
         handler = new Handler();
-        //long delay = 60*1000;
-        long delay = 10*1000; //for testing
+        long delay = 60*1000;
+        //long delay = 10*1000; //for testing
         Runnable runnable = new Runnable() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
