@@ -52,6 +52,7 @@ public class View_stats_fragment extends Fragment {
     private AlertDialog dialog;
     private Button buttonClose;
     private int Sleep_id;
+    private int PeakCount;
 
     //deleteDialog variables
     private Button buttonDelete;
@@ -182,6 +183,7 @@ public class View_stats_fragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void ShowNightGraph(int sleep_id, MyDBHandler dbHandler){
         Sleep_id = sleep_id;
+        PeakCount = 0;
         /*GraphView graph = (GraphView) getView().findViewById(R.id.graph);
         graph.removeAllSeries();
         // activate horizontal zooming and scrolling
@@ -218,6 +220,7 @@ public class View_stats_fragment extends Fragment {
                 double sleep_coeff = 0.0033*(1.06*activity_counts[i-4]+0.54*activity_counts[i-3]+0.58*activity_counts[i-2]+0.76*activity_counts[i-1]+2.3*activity_counts[i]+0.74*activity_counts[i+1]+0.67*activity_counts[i+2]);
                 if (sleep_coeff > 1){
                     sleep=1;
+                    PeakCount += 1;
                 }
                 value_time_pairs[i-4] = new DataPoint(times[i], sleep);
                 Log.d("Bartest", String.valueOf(sleep_coeff));
@@ -362,7 +365,7 @@ public class View_stats_fragment extends Fragment {
             Log.d("ERROR get total sleep","error: "+e.toString());
             return "ERROR";
         }
-        long total = stop.getTime() - start.getTime();
+        long total = stop.getTime() - start.getTime() - (PeakCount*60*1000);
         String timeFormat = String.format("%02d:%02d",
                 TimeUnit.MILLISECONDS.toHours(total),
                 TimeUnit.MILLISECONDS.toMinutes(total) -
